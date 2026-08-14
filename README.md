@@ -106,19 +106,19 @@ services:
         value: production
 ```
 
-App sẽ có URL dạng `https://laptop-vui-web.onrender.com`.
+App sẽ có URL dạng `https://laptopvui-2.onrender.com`.
 
 ### Bước 2: Config test suite hit vào URL Render
 
 ```bash
 # .env
-APP_URL=https://laptop-vui-web.onrender.com
+APP_URL=https://laptopvui-2.onrender.com
 ```
 
 ### Bước 3: Chạy Playwright target Render
 
 ```bash
-APP_URL=https://laptop-vui-web.onrender.com npm run test:e2e
+APP_URL=https://laptopvui-2.onrender.com npm run test:e2e
 ```
 
 ### Bước 4: CI/CD Automation

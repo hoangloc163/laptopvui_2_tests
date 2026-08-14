@@ -20,8 +20,8 @@
 
     <source>
         <include>
-            <directory>../banhang/controllers</directory>
-            <directory>../banhang/models</directory>
+            <directory>../app-repo/banhang/controllers</directory>
+            <directory>../app-repo/banhang/models</directory>
         </include>
     </source>
 
