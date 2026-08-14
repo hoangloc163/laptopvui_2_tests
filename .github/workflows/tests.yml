@@ -9,7 +9,11 @@ on:
     # Chạy hàng ngày lúc 2h sáng (giờ UTC = 9h sáng giờ VN) nhắm vào bản đã deploy trên Render
     - cron: '0 2 * * *'
   workflow_dispatch: # Manual trigger
-
+# Khai báo biến toàn cục dùng chung cho tất cả các Job
+env:
+  APP_URL: https://laptopvui-2.onrender.com
+  RENDER_APP_URL: https://laptopvui-2.onrender.com
+  
 jobs:
   # ============================================================
   # JOB 1: PHPUnit (Unit + Feature tests)
