@@ -1,0 +1,16 @@
+# Dockerfile.tests - Runs Playwright E2E against deployed URL
+# Used by the "laptop-vui-daily-e2e" cron service in render.yaml
+
+FROM mcr.microsoft.com/playwright:v1.44.0-jammy
+
+WORKDIR /tests
+
+COPY package*.json ./
+RUN npm ci
+
+COPY tests ./tests
+COPY playwright.config.ts ./
+COPY .env.example ./.env.example
+
+# Run against APP_URL env var (set via render.yaml fromService)
+CMD ["npx", "playwright", "test", "--project=chromium", "--reporter=list"]

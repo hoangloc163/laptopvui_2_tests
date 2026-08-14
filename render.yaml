@@ -1,0 +1,62 @@
+# render.yaml - Render.com Blueprint for Laptop Vui + Tests
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Usage:
+#   1. Push this repo (or the banhang app repo) to GitHub
+#   2. Login Render.com → New → Blueprint → Connect this repo
+#   3. Render auto-detects render.yaml and provisions services
+#
+# This blueprint provisions:
+#   - web:       PHP 8.4 web app (Laptop Vui frontend + admin)
+#   - cron:      Daily Playwright smoke test against deployed URL (optional)
+
+services:
+  # ============================================================
+  # SERVICE 1: Web app (PHP 8.4)
+  # ============================================================
+  - type: web
+    name: laptop-vui-web
+    runtime: docker
+    plan: free    # 512 MB RAM, sleeps after 15 min idle
+    region: singapore   # closest to Vietnam users
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: PHP_VERSION
+        value: "8.4"
+      # Enable persistent SQLite via disk mount (see disks below)
+      - key: DB_PATH
+        value: /var/data/demo.sqlite
+    disk:
+      name: laptop-vui-data
+      mountPath: /var/data
+      sizeGB: 1
+    autoDeploy: true
+
+  # ============================================================
+  # SERVICE 2: Daily E2E test cron (optional)
+  # ============================================================
+  # Runs Playwright against the deployed URL every day at 02:00 UTC
+  # Alerts via Render's built-in notification if tests fail
+  - type: cron
+    name: laptop-vui-daily-e2e
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile.tests
+    schedule: "0 2 * * *"    # Daily at 02:00 UTC (09:00 Vietnam)
+    envVars:
+      - key: APP_URL
+        fromService:
+          type: web
+          name: laptop-vui-web
+          property: hostport
+      - key: CI
+        value: "true"
+
+# Note about free tier:
+# - Free web services sleep after 15 min of inactivity
+# - First request after sleep may take 30-60s (cold start)
+# - For production, upgrade to Starter ($7/mo) or higher

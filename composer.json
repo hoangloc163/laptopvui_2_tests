@@ -1,0 +1,32 @@
+{
+    "name": "laptop-vui/tests",
+    "description": "Executable test suite for Laptop Vui e-commerce app",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "guzzlehttp/guzzle": "^7.8",
+        "fakerphp/faker": "^1.23",
+        "symfony/dotenv": "^7.0",
+        "symfony/dom-crawler": "^7.0",
+        "symfony/css-selector": "^7.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:unit": "phpunit --testsuite=Unit",
+        "test:feature": "phpunit --testsuite=Feature",
+        "test:coverage": "phpunit --coverage-html coverage",
+        "test:filter": "phpunit --filter"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}
