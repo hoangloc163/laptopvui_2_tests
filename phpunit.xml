@@ -26,8 +26,7 @@
     </source>
 
     <php>
-        <!-- Trỏ URL về web đang chạy trên Render -->
-        <env name="APP_URL" value="https://laptopvui-2.onrender.com" force="true"/>
-        <server name="APP_URL" value="https://laptopvui-2.onrender.com" force="true"/>
+        <env name="APP_URL" value="http://localhost:8000"/>
+        <env name="APP_ENV" value="testing"/>
     </php>
 </phpunit>

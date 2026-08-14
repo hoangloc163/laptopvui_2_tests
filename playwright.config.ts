@@ -1,7 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import 'dotenv/config';
 
-const APP_URL = process.env.APP_URL || 'https://laptopvui-2.onrender.com';
+const APP_URL = process.env.APP_URL || 'http://localhost:8000';
 
 export default defineConfig({
   testDir: './tests/E2E',
