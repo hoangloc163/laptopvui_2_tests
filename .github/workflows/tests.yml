@@ -1,0 +1,211 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+  schedule:
+    # Chạy hàng ngày lúc 2h sáng (giờ UTC = 9h sáng giờ VN) nhắm vào bản đã deploy trên Render
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  # ============================================================
+  # JOB 1: PHPUnit (Unit + Feature tests)
+  # ============================================================
+  phpunit:
+    name: PHPUnit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout tests repo
+        uses: actions/checkout@v4
+        with:
+          path: laptop-vui-tests
+
+      - name: Checkout app repo (sibling directory)
+        uses: actions/checkout@v4
+        with:
+          repository: hoangloc163/laptopvui_2
+          path: app-repo
+          token: ${{ secrets.APP_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+        continue-on-error: true # OK if repo is private/missing - will skip HTTP tests
+
+      - name: Setup PHP 8.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite, mbstring, fileinfo, gd, curl
+          coverage: xdebug
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: laptop-vui-tests/vendor
+          key: composer-${{ hashFiles('laptop-vui-tests/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install PHP dependencies
+        working-directory: laptop-vui-tests
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Start PHP dev server (if app repo present)
+        if: hashFiles('app-repo/banhang/index.php') != ''
+        working-directory: app-repo/banhang
+        run: |
+          php -S localhost:8000 -t . dev-router.php > /tmp/php-server.log 2>&1 &
+          sleep 2
+          echo "PHP server started"
+          curl -f http://localhost:8000 || echo "Server not responding yet"
+
+      - name: Run Unit tests
+        working-directory: laptop-vui-tests
+        run: composer test:unit
+
+      - name: Run Feature tests
+        working-directory: laptop-vui-tests
+        env:
+          APP_URL: http://localhost:8000
+        run: composer test:feature
+        continue-on-error: ${{ hashFiles('app-repo/banhang/index.php') == '' }}
+
+      - name: Upload PHP server log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-server-log
+          path: /tmp/php-server.log
+          retention-days: 7
+
+  # ============================================================
+  # JOB 2: Playwright E2E
+  # ============================================================
+  playwright:
+    name: Playwright E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: phpunit
+
+    steps:
+      - name: Checkout tests repo
+        uses: actions/checkout@v4
+        with:
+          path: laptop-vui-tests
+
+      - name: Checkout app repo
+        uses: actions/checkout@v4
+        with:
+          repository: hoangloc163/laptopvui_2
+          path: app-repo
+          token: ${{ secrets.APP_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - name: Setup PHP 8.4
+        if: hashFiles('app-repo/banhang/index.php') != ''
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_sqlite, mbstring, fileinfo, gd, curl
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: laptop-vui-tests/package-lock.json
+
+      - name: Install Node dependencies
+        working-directory: laptop-vui-tests
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('laptop-vui-tests/package-lock.json') }}
+
+      - name: Install Playwright browsers
+        working-directory: laptop-vui-tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Start PHP server
+        if: hashFiles('app-repo/banhang/index.php') != ''
+        working-directory: app-repo/banhang
+        run: |
+          php -S localhost:8000 -t . dev-router.php > /tmp/php-server.log 2>&1 &
+          sleep 3
+
+      - name: Run Playwright tests (Chromium only in CI for speed)
+        if: hashFiles('app-repo/banhang/index.php') != ''
+        working-directory: laptop-vui-tests
+        env:
+          APP_URL: http://localhost:8000
+          CI: true
+        run: npx playwright test --project=chromium
+
+      - name: Upload Playwright report
+        if: always() && hashFiles('app-repo/banhang/index.php') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: laptop-vui-tests/playwright-report/
+          retention-days: 30
+
+      - name: Upload Playwright test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: laptop-vui-tests/test-results/
+          retention-days: 7
+
+  # ============================================================
+  # JOB 3: E2E nhắm vào bản đã deploy trên Render (chạy theo lịch)
+  # ============================================================
+  e2e-against-render:
+    name: E2E vs Render Deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout tests repo
+        uses: actions/checkout@v4
+        with:
+          path: laptop-vui-tests
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: laptop-vui-tests/package-lock.json
+
+      - name: Install Node dependencies
+        working-directory: laptop-vui-tests
+        run: npm ci
+
+      - name: Install Playwright browsers
+        working-directory: laptop-vui-tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Wake up Render free instance
+        run: curl -sS --max-time 90 https://laptopvui-2.onrender.com/ || true
+        # Gói free của Render "ngủ" khi không có traffic — request này đánh thức trước khi test
+
+      - name: Run Playwright against Render
+        working-directory: laptop-vui-tests
+        env:
+          APP_URL: https://laptopvui-2.onrender.com
+          CI: true
+        run: npx playwright test --project=chromium
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-render
+          path: laptop-vui-tests/playwright-report/
+          retention-days: 30
