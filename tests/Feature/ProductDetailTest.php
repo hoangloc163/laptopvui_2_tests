@@ -6,10 +6,12 @@ namespace Tests\Feature;
 use Tests\Support\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @source BaoCao_TestCase_LaptopVui mục 5.2.2 - Chi tiết sản phẩm và danh mục
  */
+#[Group('Chi tiết SP & Danh mục')]
 class ProductDetailTest extends TestCase
 {
     protected function setUp(): void

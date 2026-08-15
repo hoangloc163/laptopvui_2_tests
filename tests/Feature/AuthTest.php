@@ -5,10 +5,12 @@ namespace Tests\Feature;
 
 use Tests\Support\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @source BaoCao_TestCase_LaptopVui mục 5.2.6 - Đăng ký / Đăng nhập
  */
+#[Group('Đăng ký / Đăng nhập')]
 class AuthTest extends TestCase
 {
     protected function setUp(): void

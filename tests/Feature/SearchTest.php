@@ -5,10 +5,12 @@ namespace Tests\Feature;
 
 use Tests\Support\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @source BaoCao_TestCase_LaptopVui mục 5.2.3 - Tìm kiếm
  */
+#[Group('Tìm kiếm')]
 class SearchTest extends TestCase
 {
     protected function setUp(): void

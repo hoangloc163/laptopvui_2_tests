@@ -6,6 +6,7 @@ namespace Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Unit tests for validation logic used across the app.
@@ -13,6 +14,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * @source BaoCao_TestCase_LaptopVui - business rules BR-01 to BR-15
  */
+#[Group('Unit - Validation')]
 class ValidationTest extends TestCase
 {
     // ========== EMAIL VALIDATION (used in Register, Checkout) ==========

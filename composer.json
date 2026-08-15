@@ -24,7 +24,15 @@
         "test:unit": "phpunit --testsuite=Unit",
         "test:feature": "phpunit --testsuite=Feature",
         "test:coverage": "phpunit --coverage-html coverage",
-        "test:filter": "phpunit --filter"
+        "test:filter": "phpunit --filter",
+        "test:testdox": "phpunit --testdox",
+        "test:testdox-html": "phpunit --testdox-html testdox-report.html",
+        "test:group": "phpunit --group",
+        "test:junit": "phpunit --log-junit storage/phpunit-junit.xml",
+        "dashboard": [
+            "@test:junit",
+            "php scripts/generate-dashboard.php"
+        ]
     },
     "config": {
         "sort-packages": true

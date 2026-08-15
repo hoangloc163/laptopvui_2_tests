@@ -6,10 +6,12 @@ namespace Tests\Unit;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @source Test case TC-UI-09 (đơn vị tiền VNĐ)
  */
+#[Group('Unit - Định dạng giá')]
 class PriceFormatTest extends TestCase
 {
     #[Test]

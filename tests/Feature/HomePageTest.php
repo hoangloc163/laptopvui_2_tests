@@ -5,10 +5,12 @@ namespace Tests\Feature;
 
 use Tests\Support\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @source BaoCao_TestCase_LaptopVui mục 5.2.1 - Nhóm test case: Trang chủ & Điều hướng
  */
+#[Group('Trang chủ & Điều hướng')]
 class HomePageTest extends TestCase
 {
     protected function setUp(): void

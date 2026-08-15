@@ -229,6 +229,34 @@ Sau khi chạy tests, các report được sinh ra:
 
 CI/CD sẽ tự động upload các report này để download.
 
+## 🗂️ Dashboard trực quan theo Module (dành cho tester)
+
+Ngoài các report kỹ thuật ở trên, repo có thêm **`dashboard.html`** — 1 trang duy nhất
+tổng hợp toàn bộ 169 test case đã thiết kế, gộp theo **Module** (Trang chủ, Giỏ hàng,
+Thanh toán, Admin...), mỗi dòng hiển thị: `TC ID` → mô tả chức năng → kết quả chạy thật
+gần nhất (✅ Pass / ❌ Fail / ⚠️ Bug đã biết / ⏳ Chưa có test tự động).
+
+**Chạy local:**
+```bash
+composer dashboard   # chạy PHPUnit sinh JUnit XML + sinh dashboard.html
+open dashboard.html  # (macOS) hoặc mở thủ công bằng trình duyệt
+```
+
+**Trên CI:** mỗi lần workflow chạy xong, vào tab **Actions** → lần chạy tương ứng →
+mục **Artifacts** → tải **`test-dashboard`** (đây là bản gộp cả PHPUnit lẫn Playwright,
+job `dashboard` chạy sau khi 2 job kia hoàn tất).
+
+Mỗi test Playwright (`tests/E2E/*.spec.ts`) cũng đã được chia thành các `test.step()`
+có tên tiếng Việt rõ ràng — khi mở `playwright-report/index.html` hoặc trace viewer,
+tester sẽ thấy từng bước nhỏ (VD: "Điền form đăng ký hợp lệ", "Submit và xác nhận
+redirect") pass/fail riêng biệt thay vì chỉ 1 khối kết quả cho cả kịch bản.
+
+Muốn xem nhanh riêng 1 module bằng PHPUnit (không cần dashboard):
+```bash
+composer test:group "Giỏ hàng"      # chỉ chạy các test thuộc module Giỏ hàng
+composer test:testdox                # in kết quả dạng câu văn dễ đọc, nhóm theo class/module
+```
+
 ## 🤝 Contributing
 
 Khi thêm test case mới:

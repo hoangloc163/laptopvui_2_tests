@@ -5,10 +5,12 @@ namespace Tests\Feature;
 
 use Tests\Support\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @source BaoCao_TestCase_LaptopVui mục 5.2.4 - Giỏ hàng
  */
+#[Group('Giỏ hàng')]
 class CartTest extends TestCase
 {
     protected function setUp(): void

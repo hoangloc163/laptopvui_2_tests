@@ -5,10 +5,12 @@ namespace Tests\Feature;
 
 use Tests\Support\TestCase;
 use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * @source BaoCao_TestCase_LaptopVui mục 5.2.8, 5.2.9 - Admin danh mục & đơn hàng
  */
+#[Group('Admin - Danh mục')]
 class AdminCategoryOrderTest extends TestCase
 {
     protected function setUp(): void

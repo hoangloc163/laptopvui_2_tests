@@ -12,6 +12,7 @@ export default defineConfig({
 
   reporter: [
     ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    ['json', { outputFile: 'test-results/results.json' }],
     ['list'],
     process.env.CI ? ['github'] : ['line'],
   ],
@@ -52,7 +53,7 @@ export default defineConfig({
 
   // If APP_URL is localhost, auto-start PHP server before tests
   webServer: APP_URL.includes('localhost') && !process.env.CI ? {
-    command: 'cd ../banhang && php -S localhost:8000 -t . dev-router.php',
+    command: 'cd ../app-repo/banhang && php -S localhost:8000 -t . dev-router.php',
     url: APP_URL,
     reuseExistingServer: true,
     timeout: 30_000,
